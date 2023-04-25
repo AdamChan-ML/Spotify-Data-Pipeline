@@ -40,6 +40,7 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     # Transform yesterday from datetime to string in format, yyyy-mm-dd
     yesterday = yesterday.strftime("%Y-%m-%d")
 
+    # Filter dataframe with songs that were played yesterday
     timestamps = df["timestamp"].tolist()
     for timestamp in timestamps:
         if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
