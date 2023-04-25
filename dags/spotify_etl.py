@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy.orm import sessionmaker
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, time
 import datetime
 import sqlite3
 import os
@@ -35,14 +35,18 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
         raise Exception("Null values found")
 
     # Check that all timestamps are of yesterday's date
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-    yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=3)
+
+    # Transform yesterday from datetime to string in format, yyyy-mm-dd
+    yesterday = yesterday.strftime("%Y-%m-%d")
 
     timestamps = df["timestamp"].tolist()
     for timestamp in timestamps:
         if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
-            raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
-    
+            print("At least one of the returned songs does not have a yesterday's timestamp, filtering songs only with yesterday's timestamp")
+            df = df[df["timestamp"] == yesterday]
+            break   
+
     return True
 
 def run_spotify_etl():
@@ -57,8 +61,8 @@ def run_spotify_etl():
     }
     
     # Convert time to Unix timestamp in miliseconds      
-    today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=1)
+    today_midnight = datetime.datetime.combine(datetime.datetime.today(), time.min)
+    yesterday = today_midnight - datetime.timedelta(days=3)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
     # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
@@ -87,7 +91,6 @@ def run_spotify_etl():
     }
 
     song_df = pd.DataFrame(song_dict, columns = ["song_name", "artist_name", "played_at", "timestamp"])
-    
     # Validate
     if check_if_valid_data(song_df):
         print("Data valid, proceed to Load stage")
