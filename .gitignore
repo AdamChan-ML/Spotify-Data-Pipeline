@@ -1,3 +1,6 @@
 .env
+__pycache__
+prefect-venv
 logs/
 my_played_tracks.sqlite
+project-notes.txt

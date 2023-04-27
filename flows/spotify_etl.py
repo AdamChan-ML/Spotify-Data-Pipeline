@@ -51,7 +51,7 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     return True
 
 def run_spotify_etl():
-    DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
+    DATABASE_LOCATION = "sqlite:///../my_played_tracks.sqlite"
     TOKEN = refresh_token()
 
     # Extract part of the ETL process
@@ -126,4 +126,4 @@ def run_spotify_etl():
     conn.close()
     print("Close database successfully")
 
-# run_spotify_etl()
+run_spotify_etl()
